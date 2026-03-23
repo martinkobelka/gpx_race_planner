@@ -131,6 +131,33 @@ body {
   padding: 1rem;
 }
 
+// ─── Footer ────────────────────────────────────────────────────────────────
+
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  font-size: 0.8rem;
+  color: $color-text-faint;
+  border-top: 1px solid $color-border;
+  margin-top: 1rem;
+
+  &__link {
+    color: $color-text-faint;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color 0.15s;
+
+    &:hover { color: $color-primary; }
+  }
+
+  &__sep { user-select: none; }
+}
+
 // ─── Menubar brand ─────────────────────────────────────────────────────────
 
 .menubar-brand {
@@ -418,6 +445,15 @@ body {
 }
 
 .seg-overlay { pointer-events: none; }
+
+// ─── HelpDialog ────────────────────────────────────────────────────────────
+
+.help-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
 
 // ─── HelpIcon ──────────────────────────────────────────────────────────────
 

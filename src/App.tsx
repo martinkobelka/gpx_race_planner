@@ -26,6 +26,7 @@ import FitExport from './components/FitExport';
 import ResultsCalculator from './components/ResultsCalculator';
 import SegmentationWatcher from './components/SegmentationWatcher';
 import RouteMap from './components/RouteMap';
+import HelpDialog from './components/HelpDialog';
 import { HoveredSegmentProvider } from './contexts/HoveredSegment';
 
 const LANGS: { value: Lang; label: string }[] = [
@@ -42,6 +43,7 @@ const App: React.FC = () => {
   const fileName = useSelector((s: RootState) => s.gpx.fileName);
   const language = useSelector((s: RootState) => s.settings.language);
   const appMode = useSelector((s: RootState) => s.settings.appMode);
+  const [helpVisible, setHelpVisible] = React.useState(false);
 
   const handleFullReset = () => {
     confirmDialog({
@@ -79,7 +81,7 @@ const App: React.FC = () => {
     {
       label: t.help,
       icon: 'pi pi-question-circle',
-      command: () => window.open(`help/${language}.html`, '_blank'),
+      command: () => setHelpVisible(true),
     },
   ];
 
@@ -114,6 +116,7 @@ const App: React.FC = () => {
       {appMode === 'gpx' ? <SegmentationWatcher /> : <ManualSegmentWatcher />}
       <ResultsCalculator />
       <ConfirmDialog />
+      <HelpDialog language={language} visible={helpVisible} onHide={() => setHelpVisible(false)} />
 
       <Menubar
         model={menuItems}
@@ -171,6 +174,16 @@ const App: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <footer className="app-footer">
+        <a href="https://github.com/martinkobelka/gpx_race_planner" target="_blank" rel="noopener" className="app-footer__link">
+          <i className="pi pi-github" /> GitHub
+        </a>
+        <span className="app-footer__sep">·</span>
+        <a href="https://martinkobelka.cz" target="_blank" rel="noopener" className="app-footer__link">
+          martinkobelka.cz
+        </a>
+      </footer>
     </div>
   );
 };
