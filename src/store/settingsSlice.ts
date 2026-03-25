@@ -26,7 +26,7 @@ const initialState: SettingsState = {
   targetMode: 'pace',
   targetPaceSeconds: 330,
   targetTimeSeconds: 0,
-  effortModel: 'linear',
+  effortModel: 'minetti',
   uphillCost: 15,
   downhillBenefit: 8,
   powerExponent: 1.5,

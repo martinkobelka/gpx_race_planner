@@ -34,10 +34,10 @@ const EffortSettings: React.FC = () => {
   );
 
   const modelOptions: { label: string; value: EffortModel }[] = [
+    { label: t.effortModelMinetti,     value: 'minetti' },
     { label: t.effortModelLinear,      value: 'linear' },
     { label: t.effortModelPower,       value: 'power' },
     { label: t.effortModelExponential, value: 'exponential' },
-    { label: t.effortModelMinetti,     value: 'minetti' },
   ];
 
   const splitOptions = [
