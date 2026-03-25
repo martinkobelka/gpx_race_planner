@@ -133,6 +133,7 @@ const SegmentsTable: React.FC = () => {
           <MultiSelect
             value={visibleCols}
             options={colOptions}
+            optionValue="value"
             onChange={(e) => dispatch(setVisibleColumns(e.value))}
             maxSelectedLabels={0}
             selectedItemsLabel={t.colColumns}
@@ -140,37 +141,45 @@ const SegmentsTable: React.FC = () => {
           />
         )}
       </div>
-      {!collapsed && <DataTable
-        ref={tableRef}
-        value={rows}
-        size="small"
-        scrollable
-        scrollHeight="400px"
-        rowClassName={(row: RowData) => hoveredId === row.id ? 'segment-row-hovered' : ''}
-        onRowMouseEnter={(e) => setHoveredId((e.data as RowData).id)}
-        onRowMouseLeave={() => setHoveredId(null)}
-      >
-        <Column field="id" header={t.colNum} style={{ width: '3rem' }} />
-        {vis('fromTo')   && <Column field="fromTo"   header={t.colFromTo} />}
-        {vis('lengthKm') && <Column field="lengthKm" header={t.colLength} />}
-        {vis('elev')     && <Column header={t.colElev} body={(r: RowData) => (
+      {!collapsed && (() => {
+        const columns = [
+          <Column key="id" field="id" header={t.colNum} style={{ width: '3rem' }} />,
+        ];
+        if (vis('fromTo'))   columns.push(<Column key="fromTo"   field="fromTo"   header={t.colFromTo} />);
+        if (vis('lengthKm')) columns.push(<Column key="lengthKm" field="lengthKm" header={t.colLength} />);
+        if (vis('elev'))     columns.push(<Column key="elev"     field="elevGain"  header={t.colElev} body={(r: RowData) => (
           <span>
             {r.elevGain > 0 && <span className="text-uphill">+{r.elevGain} m</span>}
             {r.elevLoss > 0 && <span className="text-downhill"> -{r.elevLoss} m</span>}
             {r.elevGain === 0 && r.elevLoss === 0 && '—'}
           </span>
-        )} />}
-        {vis('avgSlope') && <Column header={t.colSlope} body={(r: RowData) => {
+        )} />);
+        if (vis('avgSlope')) columns.push(<Column key="avgSlope" field="avgSlope"  header={t.colSlope} body={(r: RowData) => {
           const v = parseFloat(r.avgSlope);
           const cls = v > 0 ? 'text-uphill slope-value' : v < 0 ? 'text-downhill slope-value' : 'text-neutral slope-value';
           return <span className={cls}>{r.avgSlope}%</span>;
-        }} />}
-        {vis('type')     && <Column header={t.colType} body={(r: RowData) => <Tag value={r.typeLabel} severity={TYPE_SEVERITY[r.type]} />} />}
-        {vis('pace')     && <Column field="pace"     header={t.colPace} />}
-        {vis('segTime')  && <Column field="segTime"  header={t.colSegTime} />}
-        {vis('cumTime')  && <Column field="cumTime"  header={t.colCumTime} />}
-        {vis('avgPace')  && <Column field="avgPace"  header={t.colAvgPace} />}
-      </DataTable>}
+        }} />);
+        if (vis('type'))     columns.push(<Column key="type"     field="typeLabel" header={t.colType} body={(r: RowData) => <Tag value={r.typeLabel} severity={TYPE_SEVERITY[r.type]} />} />);
+        if (vis('pace'))     columns.push(<Column key="pace"    field="pace"    header={t.colPace} />);
+        if (vis('segTime'))  columns.push(<Column key="segTime" field="segTime" header={t.colSegTime} />);
+        if (vis('cumTime'))  columns.push(<Column key="cumTime" field="cumTime" header={t.colCumTime} />);
+        if (vis('avgPace'))  columns.push(<Column key="avgPace" field="avgPace" header={t.colAvgPace} />);
+        return (
+          <DataTable
+            key={visibleCols.join(',')}
+            ref={tableRef}
+            value={rows}
+            size="small"
+            scrollable
+            scrollHeight="400px"
+            rowClassName={(row: RowData) => hoveredId === row.id ? 'segment-row-hovered' : ''}
+            onRowMouseEnter={(e) => setHoveredId((e.data as RowData).id)}
+            onRowMouseLeave={() => setHoveredId(null)}
+          >
+            {columns}
+          </DataTable>
+        );
+      })()}
     </Card>
   );
 };
