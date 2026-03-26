@@ -57,15 +57,14 @@ const ColumnSelector: React.FC<Props> = ({ allColumns, selected, onChange }) => 
           emptyMessage={t.tableExportColumnsNone}
           emptyFilterMessage={t.tableExportColumnsNone}
           display="chip"
-          className="flex-1"
-          style={{ minWidth: 0 }}
+          className="flex-1 column-add-select"
         />
         <Button
           label={t.tableExportColumnsAdd}
           icon="pi pi-plus"
           severity="success"
           size="small"
-          style={{ flexShrink: 0 }}
+          className="column-add-btn"
           disabled={toAdd.length === 0}
           onClick={handleAdd}
         />
@@ -86,7 +85,7 @@ const ColumnSelector: React.FC<Props> = ({ allColumns, selected, onChange }) => 
               onClick={() => onChange([])}
             />
           </div>
-          <div style={{ border: '1px solid #e2e8f0', borderRadius: '6px', overflow: 'hidden' }}>
+          <div className="column-list">
             {selected.map((col, idx) => (
               <div
                 key={col.field}
@@ -95,15 +94,11 @@ const ColumnSelector: React.FC<Props> = ({ allColumns, selected, onChange }) => 
                 onDragEnter={() => { dragOver.current = idx; }}
                 onDragEnd={handleDragEnd}
                 onDragOver={(e) => e.preventDefault()}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '0.4rem 0.75rem', cursor: 'grab', background: '#ffffff',
-                  borderBottom: idx < selected.length - 1 ? '1px solid #e2e8f0' : 'none',
-                }}
+                className="column-list__item"
               >
-                <span style={{ fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#475569' }}>
-                  <i className="pi pi-bars" style={{ color: '#94a3b8' }} />
-                  <span style={{ color: '#94a3b8' }}>{idx + 1}.</span>
+                <span className="column-list__label">
+                  <i className="pi pi-bars column-list__drag-icon" />
+                  <span className="column-list__index">{idx + 1}.</span>
                   {col.label}
                 </span>
                 <Button icon="pi pi-times" text rounded severity="danger" size="small" onClick={() => handleRemove(col.field)} />

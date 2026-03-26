@@ -30,7 +30,7 @@ type MarginSide = 'top' | 'bottom' | 'left' | 'right';
 // additionally exaggerates the visible margin bands so small values remain clickable.
 const PREVIEW_SCALE = 0.35;
 const MARGIN_SCALE  = PREVIEW_SCALE * 1.5;
-const INPUT_COL_W   = 110;
+// INPUT_COL_W = 110 — also hardcoded in _table-export.scss (.margin-grid column template)
 
 const PdfMarginEditor: React.FC<Props> = ({
   paperSize, orientation,
@@ -51,10 +51,7 @@ const PdfMarginEditor: React.FC<Props> = ({
   const ph   = dims.h * PREVIEW_SCALE;
 
   const marginAreaStyle = (side: MarginSide): React.CSSProperties => ({
-    cursor: 'pointer',
-    position: 'absolute',
     backgroundColor: active === side ? 'rgba(66,114,196,0.4)' : 'rgba(66,114,196,0.15)',
-    transition: 'background-color 0.2s',
     ...(side === 'top'    && { top: 0, left: 0, right: 0, height: top    * MARGIN_SCALE, borderBottom: active === 'top'    ? '2px solid #4472C4' : '1px dashed #4472C4' }),
     ...(side === 'bottom' && { bottom: 0, left: 0, right: 0, height: bottom * MARGIN_SCALE, borderTop:    active === 'bottom' ? '2px solid #4472C4' : '1px dashed #4472C4' }),
     ...(side === 'left'   && { top: 0, bottom: 0, left: 0, width: left   * MARGIN_SCALE, borderRight: active === 'left'   ? '2px solid #4472C4' : '1px dashed #4472C4' }),
@@ -62,8 +59,8 @@ const PdfMarginEditor: React.FC<Props> = ({
   });
 
   const renderInput = (side: MarginSide, label: string, value: number, onChange: (v: number) => void) => (
-    <div style={{ width: '100%' }}>
-      <div className="text-sm mb-1" style={{ textAlign: 'center' }}>{label}</div>
+    <div className="w-full">
+      <div className="margin-input-label text-sm mb-1">{label}</div>
       <InputNumber
         inputRef={refs[side]}
         value={value}
@@ -82,54 +79,43 @@ const PdfMarginEditor: React.FC<Props> = ({
       <div className="text-sm mb-2">{t.tableExportPdfMargins}</div>
 
       {/* 3×3 grid: inputs on the four compass points, page preview in the centre */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: `${INPUT_COL_W}px 1fr ${INPUT_COL_W}px`,
-        gridTemplateRows: 'auto auto auto',
-        gap: '0.5rem',
-        alignItems: 'center',
-        justifyItems: 'center',
-      }}>
+      <div className="margin-grid">
         {/* Top — column 2, row 1 */}
-        <div style={{ gridColumn: 2, gridRow: 1, width: '100%' }}>
+        <div className="margin-grid__top">
           {renderInput('top', t.tableExportPdfMarginTop, top, onTopChange)}
         </div>
 
         {/* Left — column 1, row 2 */}
-        <div style={{ gridColumn: 1, gridRow: 2, width: '100%' }}>
+        <div className="margin-grid__left">
           {renderInput('left', t.tableExportPdfMarginLeft, left, onLeftChange)}
         </div>
 
         {/* Page preview — column 2, row 2 */}
-        <div style={{
-          gridColumn: 2, gridRow: 2,
-          width: pw, height: ph, flexShrink: 0,
-          border: '1px solid #dee2e6', background: '#fff',
-          position: 'relative', boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        }}>
+        <div className="margin-grid__preview margin-preview" style={{ width: pw, height: ph }}>
           {(['top', 'bottom', 'left', 'right'] as MarginSide[]).map(side => (
-            <div key={side} onClick={() => refs[side].current?.focus()} style={marginAreaStyle(side)} />
+            <div key={side} className="margin-area" onClick={() => refs[side].current?.focus()} style={marginAreaStyle(side)} />
           ))}
           {/* Mock content lines */}
-          <div style={{
-            position: 'absolute',
-            top: top * MARGIN_SCALE + 5, bottom: bottom * MARGIN_SCALE + 5,
-            left: left * MARGIN_SCALE + 5, right: right * MARGIN_SCALE + 5,
-            display: 'flex', flexDirection: 'column', gap: 3, overflow: 'hidden',
-          }}>
+          <div
+            className="margin-content-area"
+            style={{
+              top: top * MARGIN_SCALE + 5, bottom: bottom * MARGIN_SCALE + 5,
+              left: left * MARGIN_SCALE + 5, right: right * MARGIN_SCALE + 5,
+            }}
+          >
             {[...Array(8)].map((_, i) => (
-              <div key={i} style={{ height: 3, background: '#e9ecef', borderRadius: 1 }} />
+              <div key={i} className="pdf-content-line" />
             ))}
           </div>
         </div>
 
         {/* Right — column 3, row 2 */}
-        <div style={{ gridColumn: 3, gridRow: 2, width: '100%' }}>
+        <div className="margin-grid__right">
           {renderInput('right', t.tableExportPdfMarginRight, right, onRightChange)}
         </div>
 
         {/* Bottom — column 2, row 3 */}
-        <div style={{ gridColumn: 2, gridRow: 3, width: '100%' }}>
+        <div className="margin-grid__bottom">
           {renderInput('bottom', t.tableExportPdfMarginBottom, bottom, onBottomChange)}
         </div>
       </div>

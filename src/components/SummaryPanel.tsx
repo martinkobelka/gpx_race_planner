@@ -7,7 +7,7 @@ import type { AppDispatch } from '../store';
 import { setVisibleStats } from '../store/settingsSlice';
 import { formatPace, formatTime } from '../services/formatters';
 import { useT } from '../i18n/useT';
-import { useHoveredSegment } from '../contexts/HoveredSegment';
+import { useHoveredSegment } from '../hooks/useHoveredSegment';
 import { useGpxData } from '../hooks/useGpxData';
 import { useAppSettings } from '../hooks/useAppSettings';
 import { useResults } from '../hooks/useResults';

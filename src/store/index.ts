@@ -4,6 +4,7 @@ import gpxReducer from './gpxSlice';
 import segmentsReducer from './segmentsSlice';
 import settingsReducer from './settingsSlice';
 import resultsReducer from './resultsSlice';
+import uiReducer from './uiSlice';
 
 // Inline localStorage adapter — avoids CJS/ESM resolution issues with redux-persist/lib/storage in Vite
 const localStorageAdapter = {
@@ -20,12 +21,13 @@ const rootReducer = combineReducers({
   segments: segmentsReducer,
   settings: settingsReducer,
   results: resultsReducer,
+  ui: uiReducer,
 });
 
 const persistConfig = {
   key: 'gpx-race-planner',
   storage: localStorageAdapter,
-  blacklist: ['gpx', 'segments', 'results'],
+  blacklist: ['gpx', 'segments', 'results', 'ui'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

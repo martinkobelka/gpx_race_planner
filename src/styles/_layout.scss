@@ -1,4 +1,5 @@
 @use 'variables' as *;
+@use 'sass:color';
 
 // App shell: root wrapper, menubar, content area, results overlay, footer.
 
@@ -18,6 +19,9 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 1rem;
+  transition: max-width 0.3s ease;
+
+  &--wide { max-width: none; }
 }
 
 // Spinner overlay shown while results are recalculating
@@ -108,3 +112,200 @@
 
 // FitExport button is triggered programmatically; hide the visible element
 .fit-export-hidden { display: none; }
+
+// ── Resizable two-column layout ───────────────────────────────────────────
+
+.resizable-cols {
+  display: flex;
+  align-items: flex-start;
+
+  @media (max-width: 991px) {
+    flex-direction: column;
+  }
+}
+
+.resizable-cols__left {
+  min-width: 20%;
+  max-width: 75%;
+  padding: 0.5rem;
+  box-sizing: border-box;
+
+  @media (max-width: 991px) {
+    width: 100% !important;
+    flex-basis: 100% !important;
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+.resizable-cols__right {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem;
+  box-sizing: border-box;
+
+  @media (max-width: 991px) {
+    width: 100%;
+    flex-basis: 100% !important;
+  }
+}
+
+.resizable-cols__divider {
+  flex-shrink: 0;
+  width: 0.75rem;
+  align-self: stretch;
+  cursor: col-resize;
+  position: relative;
+  z-index: 1;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    border-radius: 2px;
+    background: transparent;
+    transition: background 0.15s;
+  }
+
+  &:hover::after,
+  &--active::after {
+    background: $color-primary;
+  }
+
+  @media (max-width: 991px) {
+    display: none;
+  }
+}
+
+// ── Layout settings sidebar (Sakai-style) ──────────────────────────────────
+
+.layout-settings-trigger {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1100;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: $color-primary;
+  color: $color-white;
+  border: none;
+  border-radius: 6px 0 0 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.15);
+  transition: background 0.15s;
+
+  &:hover { background: color.adjust($color-primary, $lightness: -8%); }
+
+  .pi-cog { animation: none; }
+  &:hover .pi-cog { animation: spin 1.5s linear infinite; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.layout-settings-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1098;
+  background: rgba(0,0,0,0.3);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.layout-settings-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 20rem;
+  max-width: 90vw;
+  z-index: 1099;
+  background: var(--surface-overlay, #ffffff);
+  box-shadow: -4px 0 16px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+
+  &--open { transform: translateX(0); }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.25rem 1rem;
+    border-bottom: 1px solid $color-border;
+  }
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: $color-text-muted;
+    font-size: 1rem;
+    padding: 0.25rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+
+    &:hover { color: $color-text; }
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+  }
+}
+
+.layout-settings-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid $color-border;
+
+  &:last-child { border-bottom: none; }
+
+  &__label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+
+    span:first-child {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: $color-text;
+    }
+  }
+
+  &__hint {
+    font-size: 0.78rem;
+    color: $color-text-muted;
+    line-height: 1.4;
+  }
+}

@@ -1,9 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import React from 'react';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
 import { useElevationCursor } from '../../src/hooks/useElevationCursor';
-import { HoveredSegmentProvider } from '../../src/contexts/HoveredSegment';
+import uiReducer from '../../src/store/uiSlice';
+import settingsReducer from '../../src/store/settingsSlice';
 import type { GpxPoint } from '../../src/types/index';
+
+function createTestStore() {
+  return configureStore({ reducer: { ui: uiReducer, settings: settingsReducer } });
+}
 
 const pt = (distance: number, elevation: number): GpxPoint => ({ lat: 0, lon: 0, distance, elevation });
 
@@ -16,7 +23,7 @@ const chartW = 400; // 1 px = 10 m
 const toY = (elev: number) => elev;
 
 const wrapper = ({ children }: { children: React.ReactNode }) =>
-  React.createElement(HoveredSegmentProvider, null, children);
+  React.createElement(Provider, { store: createTestStore() }, children);
 
 // Helper: render hook and set cursorX in one step
 function hookWith(cursorX: number | null) {

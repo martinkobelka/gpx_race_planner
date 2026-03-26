@@ -123,6 +123,7 @@ const PaceSettings: React.FC = () => {
         onChange={(e) => handlePaceChange(formatPace(e.value as number))}
         placeholder={t.recordsPreset}
         className="w-full mt-3"
+        filter
       />
       {totalDistance === 0 && <small className="text-color-secondary mt-2 block">{t.paceHint}</small>}
     </CollapsibleCard>
