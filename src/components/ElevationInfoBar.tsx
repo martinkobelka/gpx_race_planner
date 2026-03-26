@@ -21,7 +21,7 @@ const ElevationInfoBar: React.FC<Props> = ({ cursorX, cursorDist, cursorElev, cu
       )}
       {cursorX && <span>|</span>}
       <div className="elevation-seg-data">
-        <span>{t.chartAvgGrade}: {segment ? segment.avgSlope.toFixed(1) : '-'}%</span> | <span>{t.chartLength}: {segment?.length ? (segment.length / 1000).toFixed(2) : '-'} km</span> | <span>{t.chartGain}: {segment ? segment.elevationGain > 0.5 ? segment.elevationGain.toFixed(0) : -segment.elevationLoss.toFixed(0) : '-'} m</span>
+        <span>{t.chartAvgGrade}: {segment ? segment.avgSlope.toFixed(1) : '-'}%</span> | <span>{t.chartLength}: {segment?.length ? (segment.length / 1000).toFixed(2) : '-'} km</span> | <span>{t.chartGain}: {segment ? (segment.elevationGain - segment.elevationLoss).toFixed(0) : '-'} m</span>
       </div>
     </div>
   );
