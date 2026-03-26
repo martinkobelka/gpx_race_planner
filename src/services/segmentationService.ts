@@ -120,10 +120,10 @@ export function buildSegments(
     rawSegments = result;
   }
 
-  return rawSegments.map((r, idx) => makeSegment(idx + 1, r, points));
+  return rawSegments.map((r, idx) => makeSegment(idx + 1, r, points, slopeThreshold));
 }
 
-function makeSegment(id: number, raw: RawSegment, points: GpxPoint[]): Segment {
+function makeSegment(id: number, raw: RawSegment, points: GpxPoint[], slopeThreshold: number): Segment {
   const startPt = points[raw.startIdx];
   const endPt = points[Math.min(raw.endIdx, points.length - 1)];
   const length = endPt.distance - startPt.distance;
@@ -139,6 +139,8 @@ function makeSegment(id: number, raw: RawSegment, points: GpxPoint[]): Segment {
   const elevDelta = endPt.elevation - startPt.elevation;
   const avgSlope = length > 0 ? (elevDelta / length) * 100 : 0;
 
+  const type = avgSlope > slopeThreshold ? 'uphill' : avgSlope < -slopeThreshold ? 'downhill' : 'flat';
+
   return {
     id,
     startDistance: startPt.distance,
@@ -149,7 +151,7 @@ function makeSegment(id: number, raw: RawSegment, points: GpxPoint[]): Segment {
     elevationGain: elevGain,
     elevationLoss: elevLoss,
     avgSlope,
-    type: raw.type,
+    type: type,
   };
 }
 
