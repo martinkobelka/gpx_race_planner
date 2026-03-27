@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { MouseEvent } from 'react';
 import type { GpxPoint, Segment } from '../types';
-import { useHoveredSegment } from '../contexts/HoveredSegment';
+import { useHoveredSegment } from '../hooks/useHoveredSegment';
 
 export function useElevationCursor(
   points: GpxPoint[],

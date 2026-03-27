@@ -1,8 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Lang } from '../i18n/translations';
+import { DEFAULT_VISIBLE_COLS } from '../config/tableColumns';
 
 export type EffortModel = 'linear' | 'power' | 'exponential' | 'minetti';
+export type ColAlignment = 'left' | 'center' | 'right';
 
 interface SettingsState {
   language: Lang;
@@ -18,6 +20,9 @@ interface SettingsState {
   splitStrength: number;
   visibleColumns: string[];
   visibleStats: string[];
+  columnAlignments: Record<string, ColAlignment>;
+  wideLayout: boolean;
+  leftColumnPct: number;
 }
 
 const initialState: SettingsState = {
@@ -32,8 +37,11 @@ const initialState: SettingsState = {
   powerExponent: 1.5,
   splitStrategy: 'even',
   splitStrength: 0.05,
-  visibleColumns: ['fromTo', 'lengthKm', 'elev', 'avgSlope', 'type', 'pace', 'segTime', 'cumTime', 'avgPace'],
+  visibleColumns: DEFAULT_VISIBLE_COLS,
   visibleStats: ['distance', 'ascent', 'descent', 'time', 'pace', 'basePace', 'fastest', 'slowest'],
+  columnAlignments: {},
+  wideLayout: false,
+  leftColumnPct: 33.33,
 };
 
 const settingsSlice = createSlice({
@@ -79,6 +87,16 @@ const settingsSlice = createSlice({
     setVisibleStats(state, action: PayloadAction<string[]>) {
       state.visibleStats = action.payload;
     },
+    setColumnAlignment(state, action: PayloadAction<{ field: string; align: ColAlignment }>) {
+      if (!state.columnAlignments) state.columnAlignments = {};
+      state.columnAlignments[action.payload.field] = action.payload.align;
+    },
+    setWideLayout(state, action: PayloadAction<boolean>) {
+      state.wideLayout = action.payload;
+    },
+    setLeftColumnPct(state, action: PayloadAction<number>) {
+      state.leftColumnPct = action.payload;
+    },
     resetSettings() {
       return initialState;
     },
@@ -100,5 +118,8 @@ export const {
   setSplitStrength,
   setVisibleColumns,
   setVisibleStats,
+  setColumnAlignment,
+  setWideLayout,
+  setLeftColumnPct,
 } = settingsSlice.actions;
 export default settingsSlice.reducer;

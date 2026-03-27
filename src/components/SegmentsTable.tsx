@@ -9,35 +9,20 @@ import { Button } from 'primereact/button';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { Dialog } from 'primereact/dialog';
 import type { AppDispatch } from '../store';
-import { setVisibleColumns } from '../store/settingsSlice';
+import { setVisibleColumns, setColumnAlignment } from '../store/settingsSlice';
+import type { ColAlignment } from '../store/settingsSlice';
 import CollapsibleCard from './CollapsibleCard';
 import { useSegmentData } from '../hooks/useSegmentData';
 import { useResults } from '../hooks/useResults';
 import { useAppSettings } from '../hooks/useAppSettings';
-import type { Segment, SegmentResult, SegmentType } from '../types';
+import type { SegmentType } from '../types';
 import { TYPE_SEVERITY } from '../types';
-import { formatPace, formatDuration, formatTime } from '../services/formatters';
+import { segmentToRow } from '../services/segmentRowService';
+import type { RowData } from '../services/segmentRowService';
 import { useT } from '../i18n/useT';
-import { useHoveredSegment } from '../contexts/HoveredSegment';
-
-const ALL_COL_KEYS = ['fromTo', 'lengthKm', 'elev', 'avgSlope', 'type', 'pace', 'segTime', 'cumTime', 'avgPace'] as const;
-type ColKey = typeof ALL_COL_KEYS[number];
-
-interface RowData {
-  id: number;
-  fromTo: string;
-  lengthKm: string;
-  elevGain: number;
-  elevLoss: number;
-  avgSlope: string;
-  type: SegmentType;
-  typeLabel: string;
-  pace: string;
-  segTime: string;
-  cumTime: string;
-  avgPace: string;
-}
-
+import { useHoveredSegment } from '../hooks/useHoveredSegment';
+import { SEGMENT_TABLE_COLUMNS, ALL_COL_KEYS } from '../config/tableColumns';
+import type { ColKey } from '../config/tableColumns';
 
 
 const SegmentsTable: React.FC = () => {
@@ -49,8 +34,9 @@ const SegmentsTable: React.FC = () => {
   const [exportVisible, setExportVisible] = useState(false);
   const { segments } = useSegmentData();
   const { segmentResults } = useResults();
-  const { targetPaceSeconds, visibleColumns } = useAppSettings();
-  const visibleCols = (visibleColumns ?? [...ALL_COL_KEYS]) as ColKey[];
+  const { targetPaceSeconds, visibleColumns, columnAlignments } = useAppSettings();
+  const align = (field: string): ColAlignment => (columnAlignments ?? {})[field] ?? 'left';
+  const visibleCols = (visibleColumns ?? ALL_COL_KEYS) as ColKey[];
 
   useEffect(() => {
     if (hoveredId === null || !tableRef.current) return;
@@ -80,17 +66,9 @@ const SegmentsTable: React.FC = () => {
 
   const vis = (k: ColKey) => visibleCols.includes(k);
 
-  const colOptions: { label: string; value: ColKey }[] = [
-    { label: t.colFromTo,  value: 'fromTo'   },
-    { label: t.colLength,  value: 'lengthKm' },
-    { label: t.colElev,    value: 'elev'     },
-    { label: t.colSlope,   value: 'avgSlope' },
-    { label: t.colType,    value: 'type'     },
-    { label: t.colPace,    value: 'pace'     },
-    { label: t.colSegTime, value: 'segTime'  },
-    { label: t.colCumTime, value: 'cumTime'  },
-    { label: t.colAvgPace, value: 'avgPace'  },
-  ];
+  const colOptions = SEGMENT_TABLE_COLUMNS
+    .filter(c => !c.alwaysVisible)
+    .map(c => ({ label: t[c.labelKey] as string, value: c.key as ColKey }));
 
   const typeLabels: Record<SegmentType, string> = {
     uphill: t.typeUphill,
@@ -98,28 +76,9 @@ const SegmentsTable: React.FC = () => {
     flat: t.typeFlat,
   };
 
-  const rows: RowData[] = segments.map((seg: Segment, idx: number) => {
-    const result: SegmentResult | undefined = segmentResults[idx];
-    const pace = result ? result.paceSec : targetPaceSeconds;
-    const segTime = result ? result.segmentTimeSec : (seg.length / 1000) * targetPaceSeconds;
-    const cumTime = result ? result.cumulativeTimeSec : 0;
-    const cumDistKm = seg.endDistance / 1000;
-    const avgPaceSec = cumTime > 0 && cumDistKm > 0 ? cumTime / cumDistKm : 0;
-    return {
-      id: seg.id,
-      fromTo: `${(seg.startDistance / 1000).toFixed(2)}–${(seg.endDistance / 1000).toFixed(2)}`,
-      lengthKm: (seg.length / 1000).toFixed(2),
-      elevGain: Math.round(seg.elevationGain),
-      elevLoss: Math.round(seg.elevationLoss),
-      avgSlope: seg.avgSlope.toFixed(1),
-      type: seg.type,
-      typeLabel: typeLabels[seg.type],
-      pace: `${formatPace(pace)} /km`,
-      segTime: formatDuration(segTime),
-      cumTime: formatTime(cumTime),
-      avgPace: avgPaceSec > 0 ? `${formatPace(avgPaceSec)} /km` : '—',
-    };
-  });
+  const rows: RowData[] = segments.map((seg, idx) =>
+    segmentToRow(seg, idx, segmentResults, targetPaceSeconds, typeLabels)
+  );
 
   return (
     <>
@@ -149,31 +108,33 @@ const SegmentsTable: React.FC = () => {
         )}
       >
         {(() => {
+          const colStyle = (field: string): React.CSSProperties => ({ textAlign: align(field), whiteSpace: 'nowrap' });
+          const headStyle = (field: string): React.CSSProperties => ({ textAlign: align(field) });
           const columns = [
-            <Column key="id" field="id" header={t.colNum} style={{ width: '3rem' }} />,
+            <Column key="id" field="id" header={t.colNum} headerTooltipOptions={{ position: 'bottom' }} headerTooltip={t.colTipNum} style={{ width: '3rem', ...colStyle('id') }} headerStyle={headStyle('id')} />,
           ];
-          if (vis('fromTo'))   columns.push(<Column key="fromTo"   field="fromTo"   header={t.colFromTo} />);
-          if (vis('lengthKm')) columns.push(<Column key="lengthKm" field="lengthKm" header={t.colLength} />);
-          if (vis('elev'))     columns.push(<Column key="elev"     field="elevGain"  header={t.colElev} body={(r: RowData) => (
-            <span>
+          if (vis('fromTo'))   columns.push(<Column key="fromTo"   field="fromTo"   header={t.colFromTo}  headerTooltipOptions={{ position: 'bottom' }} headerTooltip={t.colTipFromTo}  style={colStyle('fromTo')}   headerStyle={headStyle('fromTo')} />);
+          if (vis('lengthKm')) columns.push(<Column key="lengthKm" field="lengthKm" header={t.colLength}  headerTooltipOptions={{ position: 'bottom' }} headerTooltip={t.colTipLength}  style={colStyle('lengthKm')} headerStyle={headStyle('lengthKm')} />);
+          if (vis('elev'))     columns.push(<Column key="elev"     field="elevGain"  header={t.colElev}   headerTooltipOptions={{ position: 'bottom' }} headerTooltip={t.colTipElev}    style={colStyle('elev')}     headerStyle={headStyle('elev')} body={(r: RowData) => (
+            <span style={{ display: 'flex', justifyContent: align('elev') === 'right' ? 'flex-end' : align('elev') === 'center' ? 'center' : 'flex-start', gap: '0.25rem' }}>
               {r.elevGain > 0 && <span className="text-uphill">+{r.elevGain} m</span>}
-              {r.elevLoss > 0 && <span className="text-downhill"> -{r.elevLoss} m</span>}
+              {r.elevLoss > 0 && <span className="text-downhill">-{r.elevLoss} m</span>}
               {r.elevGain === 0 && r.elevLoss === 0 && '—'}
             </span>
           )} />);
-          if (vis('avgSlope')) columns.push(<Column key="avgSlope" field="avgSlope"  header={t.colSlope} body={(r: RowData) => {
+          if (vis('avgSlope')) columns.push(<Column key="avgSlope" field="avgSlope"  header={t.colSlope}  headerTooltipOptions={{ position: 'bottom' }} headerTooltip={t.colTipSlope}   style={colStyle('avgSlope')} headerStyle={headStyle('avgSlope')} body={(r: RowData) => {
             const v = parseFloat(r.avgSlope);
             const cls = v > 0 ? 'text-uphill slope-value' : v < 0 ? 'text-downhill slope-value' : 'text-neutral slope-value';
-            return <span className={cls}>{r.avgSlope}%</span>;
+            return <span className={cls} style={{ display: 'block', textAlign: align('avgSlope') }}>{r.avgSlope}%</span>;
           }} />);
-          if (vis('type'))     columns.push(<Column key="type"     field="typeLabel" header={t.colType} body={(r: RowData) => <Tag value={r.typeLabel} severity={TYPE_SEVERITY[r.type]} />} />);
-          if (vis('pace'))     columns.push(<Column key="pace"    field="pace"    header={t.colPace} />);
-          if (vis('segTime'))  columns.push(<Column key="segTime" field="segTime" header={t.colSegTime} />);
-          if (vis('cumTime'))  columns.push(<Column key="cumTime" field="cumTime" header={t.colCumTime} />);
-          if (vis('avgPace'))  columns.push(<Column key="avgPace" field="avgPace" header={t.colAvgPace} />);
+          if (vis('type'))     columns.push(<Column key="type"     field="typeLabel" header={t.colType}   headerTooltipOptions={{ position: 'bottom' }} headerTooltip={t.colTipType}    style={colStyle('type')}     headerStyle={headStyle('type')} body={(r: RowData) => <Tag value={r.typeLabel} severity={TYPE_SEVERITY[r.type]} />} />);
+          if (vis('pace'))     columns.push(<Column key="pace"     field="pace"      header={t.colPace}   headerTooltipOptions={{ position: 'bottom' }} headerTooltip={t.colTipPace}    style={colStyle('pace')}     headerStyle={headStyle('pace')} />);
+          if (vis('segTime'))  columns.push(<Column key="segTime"  field="segTime"   header={t.colSegTime} headerTooltipOptions={{ position: 'bottom' }} headerTooltip={t.colTipSegTime} style={colStyle('segTime')} headerStyle={headStyle('segTime')} />);
+          if (vis('cumTime'))  columns.push(<Column key="cumTime"  field="cumTime"   header={t.colCumTime} headerTooltipOptions={{ position: 'bottom' }} headerTooltip={t.colTipCumTime} style={colStyle('cumTime')} headerStyle={headStyle('cumTime')} />);
+          if (vis('avgPace'))  columns.push(<Column key="avgPace"  field="avgPace"   header={t.colAvgPace} headerTooltipOptions={{ position: 'bottom' }} headerTooltip={t.colTipAvgPace} style={colStyle('avgPace')} headerStyle={headStyle('avgPace')} />);
           return (
             <DataTable
-              key={visibleCols.join(',')}
+              key={visibleCols.join(',') + JSON.stringify(columnAlignments ?? {})}
               ref={tableRef}
               value={rows}
               size="small"
@@ -192,21 +153,10 @@ const SegmentsTable: React.FC = () => {
         header={t.tableExportLabel}
         visible={exportVisible}
         onHide={() => setExportVisible(false)}
-        style={{ width: '800px' }}
+        className="export-dialog"
       >
         <TableExportPanel
-          columns={[
-            { field: 'id',        label: t.colNum     },
-            { field: 'fromTo',    label: t.colFromTo  },
-            { field: 'lengthKm',  label: t.colLength  },
-            { field: 'elev',      label: t.colElev    },
-            { field: 'avgSlope',  label: t.colSlope   },
-            { field: 'typeLabel', label: t.colType    },
-            { field: 'pace',      label: t.colPace    },
-            { field: 'segTime',   label: t.colSegTime },
-            { field: 'cumTime',   label: t.colCumTime },
-            { field: 'avgPace',   label: t.colAvgPace },
-          ]}
+          columns={SEGMENT_TABLE_COLUMNS.map(c => ({ field: c.exportField, label: t[c.labelKey] as string }))}
           getData={(fields) => rows.map(r => {
             const map: Record<string, string | number> = {
               id: r.id,
@@ -226,7 +176,8 @@ const SegmentsTable: React.FC = () => {
         />
       </Dialog>
       <OverlayPanel ref={tableSettingsRef}>
-        <div className="text-sm font-semibold mb-3">{t.colColumns}</div>
+        {/* Visible columns */}
+        <div className="text-sm font-semibold mb-2">{t.colColumns}</div>
         <MultiSelect
           value={visibleCols}
           options={colOptions}
@@ -234,8 +185,31 @@ const SegmentsTable: React.FC = () => {
           onChange={(e) => dispatch(setVisibleColumns(e.value))}
           maxSelectedLabels={0}
           selectedItemsLabel={t.colColumns}
-          className="col-selector"
+          className="col-selector mb-3"
         />
+
+        {/* Column alignment */}
+        <div className="text-sm font-semibold mb-2">{t.colAlignmentLabel}</div>
+        {SEGMENT_TABLE_COLUMNS
+          .filter(c => c.alwaysVisible || visibleCols.includes(c.key as ColKey))
+          .map(c => ({ field: c.key as string, label: t[c.labelKey] as string }))
+          .map(({ field, label }) => (
+          <div key={field} className="col-align-row">
+            <span className="text-sm">{label}</span>
+            <div className="col-align-btns">
+              {(['left', 'center', 'right'] as ColAlignment[]).map((a) => (
+                <Button
+                  key={a}
+                  icon={`pi pi-align-${a}`}
+                  size="small"
+                  outlined={align(field) !== a}
+                  onClick={() => dispatch(setColumnAlignment({ field, align: a }))}
+                  className="col-align-btn"
+                />
+              ))}
+            </div>
+          </div>
+        ))}
       </OverlayPanel>
     </>
   );

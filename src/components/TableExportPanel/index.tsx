@@ -94,7 +94,7 @@ const TableExportPanel: React.FC<TableExportPanelProps> = ({ columns, getData })
   if (downloadedFile) {
     return (
       <div className="flex flex-column align-items-center gap-3 py-3">
-        <i className="pi pi-check-circle text-green-500" style={{ fontSize: '3rem' }} />
+        <i className="pi pi-check-circle text-green-500 export-success-icon" />
         <div className="text-xl font-semibold">{t.tableExportSuccessTitle}</div>
         <div className="text-sm text-color-secondary">{t.tableExportSuccessDesc(downloadedFile)}</div>
         <div className="flex gap-2 mt-2">
@@ -106,7 +106,7 @@ const TableExportPanel: React.FC<TableExportPanelProps> = ({ columns, getData })
 
   // ── Main form ──────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-column gap-3" style={{ minWidth: '340px' }}>
+    <div className="table-export-form flex flex-column gap-3">
 
       {/* Format */}
       <div>

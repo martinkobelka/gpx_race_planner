@@ -132,6 +132,7 @@ const GpxUploader: React.FC = () => {
             }}
             placeholder={t.sampleRoutes}
             className="sample-routes-dropdown"
+            filter
           />
           <div
             className={`drop-zone${dragging ? ' drop-zone--dragging' : ''}`}

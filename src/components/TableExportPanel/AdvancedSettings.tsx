@@ -38,14 +38,14 @@ const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, 
 );
 
 const SwitchRow: React.FC<{ label: string; checked: boolean; onChange: (v: boolean) => void; bold?: boolean }> = ({ label, checked, onChange, bold }) => (
-  <div className="mb-3" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+  <div className="switch-row mb-3">
     <InputSwitch checked={checked} onChange={(e) => onChange(e.value ?? false)} />
     <span className={`text-sm${bold ? ' font-medium' : ''}`}>{label}</span>
   </div>
 );
 
 const SubOptions: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="pl-3 mb-3" style={{ borderLeft: '2px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+  <div className="sub-options pl-3 mb-3">
     {children}
   </div>
 );
@@ -141,7 +141,7 @@ const PdfSettings: React.FC<{ pdf: PdfOptions; onPdfChange: Props['onPdfChange']
       </Field>
 
       {/* Orientation + Paper size side-by-side */}
-      <div className="mb-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+      <div className="pdf-options-grid mb-3">
         <div>
           <div className="text-sm mb-1">{t.tableExportPdfOrientation}</div>
           <Dropdown value={pdf.orientation} options={[

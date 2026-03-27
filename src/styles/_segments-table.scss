@@ -5,3 +5,22 @@
 
 // Column visibility MultiSelect — auto width instead of full width
 .col-selector { width: auto !important; }
+
+// Column alignment overlay panel
+.col-align-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.col-align-btns { display: flex; gap: 2px; }
+
+.col-align-btn.p-button {
+  padding: 0.2rem 0.45rem;
+  min-width: 0;
+}
+
+// Export dialog width
+.export-dialog { width: 800px; }

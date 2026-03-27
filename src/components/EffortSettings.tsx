@@ -120,7 +120,7 @@ const EffortSettings: React.FC = () => {
             </div>
 
             {splitStrategy !== 'even' && (
-                <div>
+                <div className="pb-3">
                     <label className="block mb-2 text-sm font-medium">
                         {t.splitStrengthLabel}: <strong>{Math.round(splitStrength * 100)}%</strong>
                     </label>

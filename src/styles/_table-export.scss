@@ -1,0 +1,113 @@
+@use 'variables' as *;
+
+// ── TableExportPanel/index.tsx ────────────────────────────────────────────────
+
+.table-export-form    { min-width: 340px; }
+.export-success-icon  { font-size: 3rem; }
+
+// ── AdvancedSettings ──────────────────────────────────────────────────────────
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sub-options {
+  border-left: 2px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pdf-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+// ── ColumnSelector ────────────────────────────────────────────────────────────
+
+.column-add-select  { min-width: 0; }
+.column-add-btn     { flex-shrink: 0; }
+
+.column-list {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4rem 0.75rem;
+    cursor: grab;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__label {
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #475569;
+  }
+
+  &__drag-icon,
+  &__index { color: #94a3b8; }
+}
+
+// ── PdfMarginEditor ───────────────────────────────────────────────────────────
+
+// 110px matches INPUT_COL_W constant in PdfMarginEditor.tsx
+.margin-grid {
+  display: grid;
+  grid-template-columns: 110px 1fr 110px;
+  grid-template-rows: auto auto auto;
+  gap: 0.5rem;
+  align-items: center;
+  justify-items: center;
+
+  &__top     { grid-column: 2; grid-row: 1; width: 100%; }
+  &__left    { grid-column: 1; grid-row: 2; width: 100%; }
+  &__preview { grid-column: 2; grid-row: 2; }
+  &__right   { grid-column: 3; grid-row: 2; width: 100%; }
+  &__bottom  { grid-column: 2; grid-row: 3; width: 100%; }
+}
+
+.margin-preview {
+  flex-shrink: 0;
+  border: 1px solid #dee2e6;
+  background: #fff;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  // width + height stay inline — dynamic based on paper size & orientation
+}
+
+.margin-area {
+  cursor: pointer;
+  position: absolute;
+  transition: background-color 0.2s;
+  // all other properties (position offsets, size, border, bg) stay inline — fully dynamic
+}
+
+.margin-input-label { text-align: center; }
+
+.margin-content-area {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+  // top/bottom/left/right stay inline — depend on margin values
+}
+
+.pdf-content-line {
+  height: 3px;
+  background: #e9ecef;
+  border-radius: 1px;
+  flex-shrink: 0;
+}

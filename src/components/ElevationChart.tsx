@@ -4,7 +4,7 @@ import type { GpxPoint, Segment } from '../types';
 import { useT } from '../i18n/useT';
 import { useElevationGeometry } from '../hooks/useElevationGeometry';
 import { useElevationCursor } from '../hooks/useElevationCursor';
-import { useHoveredSegment } from '../contexts/HoveredSegment';
+import { useHoveredSegment } from '../hooks/useHoveredSegment';
 import ElevationInfoBar from './ElevationInfoBar';
 
 interface Props {

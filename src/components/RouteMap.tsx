@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, useMap, ScaleControl } from 'react-leaflet';
+import L from 'leaflet';
 import type { LatLngBoundsExpression, LatLngTuple } from 'leaflet';
 import type { GpxPoint, Segment } from '../types';
-import { useHoveredSegment } from '../contexts/HoveredSegment';
+import { useHoveredSegment } from '../hooks/useHoveredSegment';
 import { TILE_LAYERS, DEFAULT_TILE_LAYER_ID } from '../data/tileLayers';
+import { useT } from '../i18n/useT';
 
 interface Props {
   points: GpxPoint[];
@@ -19,11 +21,51 @@ const SEGMENT_COLORS: Record<string, string> = {
   flat:     '#64748b',
 };
 
+// Calls invalidateSize whenever the map container is resized
+const MapResizer: React.FC = () => {
+  const map = useMap();
+  useEffect(() => {
+    const ro = new ResizeObserver(() => map.invalidateSize());
+    ro.observe(map.getContainer());
+    return () => ro.disconnect();
+  }, [map]);
+  return null;
+};
+
 // Fits map to the route bounds whenever points change
 const BoundsFitter: React.FC<{ bounds: LatLngBoundsExpression }> = ({ bounds }) => {
   const map = useMap();
   useEffect(() => {
     map.fitBounds(bounds, { padding: [16, 16] });
+  }, [map, bounds]);
+  return null;
+};
+
+// Button placed below +/- that fits the view to the full route
+const FitControl: React.FC<{ bounds: LatLngBoundsExpression }> = ({ bounds }) => {
+  const map = useMap();
+  const t = useT();
+  useEffect(() => {
+    const ctrl = L.Control.extend({
+      options: { position: 'topleft' },
+      onAdd() {
+        const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+        const a = L.DomUtil.create('a', '', container);
+        a.title = t.mapFitRoute;
+        a.href = '#';
+        a.style.cssText = 'font-size:16px;display:flex;align-items:center;justify-content:center;';
+        a.innerHTML = '⊙';
+        L.DomEvent.on(a, 'click', (e) => {
+          L.DomEvent.stopPropagation(e);
+          L.DomEvent.preventDefault(e);
+          map.fitBounds(bounds as L.LatLngBoundsExpression, { padding: [16, 16] });
+        });
+        return container;
+      },
+    });
+    const instance = new ctrl();
+    instance.addTo(map);
+    return () => { instance.remove(); };
   }, [map, bounds]);
   return null;
 };
@@ -91,7 +133,9 @@ const RouteMap: React.FC<Props> = ({ points, segments, kmMarkersEnabled = false,
       className="route-map"
       zoomControl={true}
     >
+      <MapResizer />
       <BoundsFitter bounds={bounds} />
+      {points.length > 0 && <FitControl bounds={bounds} />}
       {scaleEnabled && <ScaleControl position="bottomleft" imperial={false} />}
       <TileLayer
         key={tileLayer.id}

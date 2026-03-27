@@ -7,6 +7,7 @@ import gpxReducer, { setDisplayData } from '../../src/store/gpxSlice';
 import settingsReducer, { setTargetPaceSeconds } from '../../src/store/settingsSlice';
 import resultsReducer, { setResults } from '../../src/store/resultsSlice';
 import segmentsReducer from '../../src/store/segmentsSlice';
+import uiReducer from '../../src/store/uiSlice';
 
 // Test store without redux-persist
 function createTestStore(preloadedState?: Parameters<typeof configureStore>[0]['preloadedState']) {
@@ -16,6 +17,7 @@ function createTestStore(preloadedState?: Parameters<typeof configureStore>[0]['
       settings: settingsReducer,
       results: resultsReducer,
       segments: segmentsReducer,
+      ui: uiReducer,
     },
     preloadedState,
   });

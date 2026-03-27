@@ -9,7 +9,7 @@ import { useGpxData } from '../hooks/useGpxData';
 import { useAppSettings } from '../hooks/useAppSettings';
 import { useResults } from '../hooks/useResults';
 
-const FitExport: React.FC<{ id?: string }> = ({ id }) => {
+const GarminWorkoutExport: React.FC<{ id?: string }> = ({ id }) => {
   const t = useT();
   const { segments }                    = useSegmentData();
   const { segmentResults }              = useResults();
@@ -63,4 +63,4 @@ const FitExport: React.FC<{ id?: string }> = ({ id }) => {
   );
 };
 
-export default FitExport;
+export default GarminWorkoutExport;
