@@ -24,7 +24,16 @@ export interface Segment {
   elevationLoss: number;
   avgSlope: number;      // percent
   type: SegmentType;
+  startPoint: SegmentPoint;
+  endPoint: SegmentPoint;
 }
+
+export interface SegmentPoint {
+  latitude: number;
+  longitude: number;
+  elevation: number;
+}
+
 
 export interface ManualSegmentInput {
   uid: string;
@@ -40,4 +49,14 @@ export interface SegmentResult {
   paceSec: number;       // sec/km
   segmentTimeSec: number;
   cumulativeTimeSec: number;
+  paceProSegment: PaceProSegment;
+}
+
+export interface PaceProSegment {
+  cumulativeDistanceFromStart: number;
+  splitAvgSpeed: number;
+  cumulativeTimeFromStart: number;
+  splitDistance: number;
+  startPoint: SegmentPoint;
+  endPoint: SegmentPoint;
 }

@@ -150,6 +150,8 @@ function makeSegment(id: number, raw: RawSegment, points: GpxPoint[]): Segment {
     elevationLoss: elevLoss,
     avgSlope,
     type: raw.type,
+    startPoint: { latitude: startPt.lat, longitude: startPt.lon, elevation: startPt.elevation },
+    endPoint: { latitude: endPt.lat, longitude: endPt.lon, elevation: endPt.elevation },
   };
 }
 

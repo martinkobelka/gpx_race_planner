@@ -7,6 +7,7 @@ const sk = {
   resetConfirmAccept: 'Áno, obnoviť',
   resetConfirmReject: 'Zrušiť',
   downloadFit: 'Stiahnuť Garmin Workout',
+  downloadPacePro: 'Stiahnuť Garmin PacePro',
 
   gpxCard: 'GPX Súbor',
   remove: 'Odstrániť',

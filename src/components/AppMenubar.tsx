@@ -11,6 +11,7 @@ import { useT } from '../i18n/useT';
 import { LANGS } from '../constants';
 import GarminWorkoutExport from './GarminWorkoutExport';
 import HelpDialog from './HelpDialog';
+import GarminPaceProExport from './GarminPaceProExport';
 
 const AppMenubar: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -28,6 +29,13 @@ const AppMenubar: React.FC = () => {
       icon: 'pi pi-download',
       disabled: segments.length === 0,
       command: () => document.getElementById('garmin-export-btn')?.click(),
+    },
+    { separator: true },
+    {
+      label: t.downloadPacePro,
+      icon: 'pi pi-download',
+      disabled: segments.length === 0,
+      command: () => document.getElementById('garmin-pacepro-export-btn')?.click(),
     },
     { separator: true },
     {
@@ -59,6 +67,9 @@ const AppMenubar: React.FC = () => {
       </div>
       <div className="fit-export-hidden">
         <GarminWorkoutExport id="garmin-export-btn" />
+      </div>
+      <div className="fit-export-hidden">
+        <GarminPaceProExport id="garmin-pacepro-export-btn" />
       </div>
     </div>
   );

@@ -54,6 +54,14 @@ const ResultsCalculator: React.FC = () => {
         paceSec: pace,
         segmentTimeSec: segTime,
         cumulativeTimeSec: cumulativeTime,
+        paceProSegment: {
+          cumulativeDistanceFromStart: seg.endDistance,
+          splitAvgSpeed: 1000 / pace,
+          cumulativeTimeFromStart: Number(cumulativeTime.toFixed(3)),
+          splitDistance: seg.length,
+          startPoint: seg.startPoint,
+          endPoint: seg.endPoint,
+        }
       };
     });
 

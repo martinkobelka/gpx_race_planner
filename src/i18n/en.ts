@@ -7,6 +7,7 @@ const en = {
   resetConfirmAccept: 'Yes, reset',
   resetConfirmReject: 'Cancel',
   downloadFit: 'Download Garmin Workout',
+  downloadPacePro: 'Download Garmin PacePro',
 
   gpxCard: 'GPX File',
   remove: 'Remove',

@@ -7,6 +7,7 @@ const cs = {
   resetConfirmAccept: 'Ano, obnovit',
   resetConfirmReject: 'Zrušit',
   downloadFit: 'Stáhnout Garmin Workout',
+  downloadPacePro: 'Stáhnout Garmin PacePro',
 
   gpxCard: 'GPX Soubor',
   remove: 'Odstranit',
