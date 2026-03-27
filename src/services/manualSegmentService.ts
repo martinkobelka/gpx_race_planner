@@ -27,6 +27,8 @@ export function manualInputsToSegments(inputs: ManualSegmentInput[]): Segment[] 
       elevationLoss: loss,
       avgSlope,
       type,
+      startPoint: { latitude: 0, longitude: 0, elevation: startElev },
+      endPoint: { latitude: 0, longitude: 0, elevation: cumElev },
     };
   });
 }
