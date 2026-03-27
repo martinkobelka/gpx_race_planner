@@ -90,37 +90,55 @@ export function buildSegments(
   rawSegments.push({ startIdx: start, endIdx: types.length, type: types[types.length - 1] });
 
   // Eliminate too-short segments by merging with neighbours
-  let changed = true;
-  while (changed && rawSegments.length > 1) {
-    changed = false;
-    const result: RawSegment[] = [];
-    let i = 0;
-    while (i < rawSegments.length) {
-      const seg = rawSegments[i];
-      const startPt = points[seg.startIdx];
-      const endPt = points[Math.min(seg.endIdx, points.length - 1)];
-      const len = endPt.distance - startPt.distance;
-      if (len < minSegmentLength) {
-        // Merge with previous if exists, else with next
-        if (result.length > 0) {
-          result[result.length - 1].endIdx = seg.endIdx;
-        } else if (i + 1 < rawSegments.length) {
-          rawSegments[i + 1].startIdx = seg.startIdx;
-          i++;
-          continue;
-        } else {
-          result.push(seg);
-        }
-        changed = true;
+  let result: RawSegment[] = [];
+  for (var i = 0; i < rawSegments.length; i++) {
+    const seg = rawSegments[i];
+    const startPt = points[seg.startIdx];
+    const endPt = points[Math.min(seg.endIdx, points.length - 1)];
+    const len = endPt.distance - startPt.distance;
+    if (len < minSegmentLength) {
+      // Merge with next if exists, else with previous
+      if (i + 1 < rawSegments.length) {
+        rawSegments[i + 1].startIdx = seg.startIdx;
+      } else if (result.length > 0) {
+        result[result.length - 1].endIdx = seg.endIdx;
       } else {
         result.push(seg);
       }
-      i++;
+    } else {
+      result.push(seg);
     }
-    rawSegments = result;
   }
+  rawSegments = result;
+
+  result = [];
+  rawSegments[0].type = typeOfSegment(rawSegments[0], points, slopeThreshold);
+  for (let i = 1; i < rawSegments.length; i++) {
+    rawSegments[i].type = typeOfSegment(rawSegments[i], points, slopeThreshold);
+    if (rawSegments[i].type === rawSegments[i - 1].type) {
+      rawSegments[i].startIdx = rawSegments[i - 1].startIdx;
+    }
+    else {
+      result.push(rawSegments[i - 1]);
+    }
+  }
+  result.push(rawSegments[rawSegments.length - 1]);
+  rawSegments = result;
+
 
   return rawSegments.map((r, idx) => makeSegment(idx + 1, r, points));
+}
+
+function typeOfSegment(seg: RawSegment, points: GpxPoint[], slopeThreshold: number): SegmentType {
+  const startPt = points[seg.startIdx];
+  const endPt = points[Math.min(seg.endIdx, points.length - 1)];
+  const deltaElev = endPt.elevation - startPt.elevation;
+  const deltaDist = endPt.distance - startPt.distance;
+  if (deltaDist === 0) return 'flat';
+  const slope = (deltaElev / deltaDist) * 1000; // m/km
+  if (slope > slopeThreshold) return 'uphill';
+  if (slope < -slopeThreshold) return 'downhill';
+  return 'flat';
 }
 
 function makeSegment(id: number, raw: RawSegment, points: GpxPoint[]): Segment {
